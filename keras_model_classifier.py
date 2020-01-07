@@ -107,6 +107,11 @@ bm_callback = callbacks.ModelCheckpoint(
     save_best_only=True,
     save_weights_only=False
 )
+es = callbacks.EarlyStopping(min_delta=0.001, patience=5,
+                                 verbose=1,  baseline=None)
+
+rlr = callbacks.ReduceLROnPlateau( factor=0.5,
+                                     patience=3, min_lr=1e-6, mode='max', verbose=1)
 def get_keras_dataset(array):
     exp={str(col): array[:,i] for i,col in enumerate(categorical_cols+numeric_cols)}
     return exp
@@ -123,7 +128,7 @@ history= model.fit(
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
     class_weight=CLASS_WEIGHTS,
-    callbacks=[tb_callback, bm_callback],
+    callbacks=[tb_callback, bm_callback,es,rlr],
     verbose=2
 )
 def plot_history(history):
