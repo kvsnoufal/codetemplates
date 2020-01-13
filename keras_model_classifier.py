@@ -44,7 +44,44 @@ numeric_cols=num_cols+num_instance_moneycols
 y=pd.get_dummies(dffeats[target_col[0]])
 
 X_train, X_test, y_train, y_test = train_test_split(dffeats[categorical_cols+numeric_cols].values, y.values, test_size=0.30,random_state=314,stratify=y.values)
+'''
+alternative model : model 2
+'''
+def create_model_alternative(data, catcols, numcols):    
+    inputs = []
+    outputs = []
+    for c in catcols:
+        num_unique_values = int(data[c].nunique())
+        embed_dim = int(min(np.ceil((num_unique_values)/2), 50))
+        inp = layers.Input(shape=(1,))
+        out = layers.Embedding(num_unique_values + 1, embed_dim, name=c)(inp)
+        out = layers.SpatialDropout1D(0.3)(out)
+        out = layers.Reshape(target_shape=(embed_dim, ))(out)
+        inputs.append(inp)
+        outputs.append(out)
+    
+    num_input = layers.Input(shape=(data[numcols].shape[1], ))
+    inputs.append(num_input)
+    outputs.append(num_input)
+    
+    x = layers.Concatenate()(outputs)
+    x = BatchNormalization()(x)
+    x = Dropout(0.3)(x)
+    x = Dense(128, activation="relu")(x)
+    x = Dropout(0.3)(x)
+    x = BatchNormalization()(x)
+    x = Dense(32, activation="relu")(x)
+    x = Dropout(0.3)(x)
+    x = BatchNormalization()(x)
+    y = Dense(1, activation="sigmoid")(x)
+    
+    model = Model(inputs=inputs, outputs=y)
+    model.compile(loss='binary_crossentropy', optimizer='adam')
+    return model
 
+'''
+model 1
+'''
 
 cat_inputs = []
 num_inputs = []
