@@ -327,8 +327,8 @@ kf = KFold(n_splits=NFOLDS)
 kf.get_n_splits(train.qa_id)
 print(text_feats)
 
-EPOCHS=10
-BATCH_SIZE=6
+EPOCHS=3
+BATCH_SIZE=4
 CLASS_WEIGHTS=None
 predictions = np.zeros((len(test),len(targets)))
 catcols=["domain","subdomain","category"]
